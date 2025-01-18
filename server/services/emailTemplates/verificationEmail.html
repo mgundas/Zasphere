@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Verification</title>
+    <style>
+      * {
+        font-family: 'Montserrat', Arial, sans-serif;
+        font-optical-sizing: auto;
+        font-style: normal;
+      }
+
+      /* Add your styles here */
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+
+      .button {
+        font-size: 1em;
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white !important;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img
+        src="https://www.gravatar.com/avatar/?d=identicon"
+        height="50px"
+        alt=""
+        srcset=""
+      />
+      <h1>Email Verification</h1>
+      <hr style="opacity: 0.2" />
+      <p style="font-size: 1rem;">
+        Hello, <strong><%= firstName %></strong>! <br />
+        <br />
+        Your verification is <%= verificationCode %>. Please verify your email address by clicking the link below.
+        <br /><br />
+        <a class="button" href="<%= link %>">Confirm</a>
+      </p>
+      <hr style="opacity: 0.2" />
+      <p style="font-size: 14px; font-weight: 500;">Zasphere &copy; 2025</p>
+    </div>
+  </body>
+</html>

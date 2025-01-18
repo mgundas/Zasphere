@@ -1,20 +1,42 @@
 const mailgun = require("mailgun-js");
 const config = require("../config");
+const fs = require("fs");
+const ejs = require("ejs");
+const path = require("path")
 
 const mg = mailgun({
   apiKey: process.env.MAILGUN_API_KEY,
   domain: process.env.MAILGUN_DOMAIN,
 });
 
-const sendVerificationEmail = (to, verificationCode) => {
-  const data = {
-    from: `Development Services <${process.env.MAILGUN_FROM_EMAIL}>`,
-    to,
-    subject: "Email Verification",
-    text: `Your verification code is: ${verificationCode}`,
-  };
+const sendVerificationEmail = (to, userData) => {
+  try {
+    const templatePath = path.join(
+      __dirname,
+      "./emailTemplates/verificationEmail.html"
+    );
+    const template = fs.readFileSync(templatePath, "utf8");
+    const props = {
+      verificationCode: userData.verificationCode,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      username: userData.username,
+      email: userData.email,
+      link: "https://example.com"
+    }
+    const html = ejs.render(template, props);
 
-  return mg.messages().send(data);
+    const data = {
+      from: `Development Services <${process.env.MAILGUN_FROM_EMAIL}>`,
+      to,
+      subject: "Email Verification",
+      html,
+    };
+
+    return mg.messages().send(data);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const sendVerificationSuccessEmail = (to) => {
@@ -30,5 +52,5 @@ const sendVerificationSuccessEmail = (to) => {
 
 module.exports = {
   sendVerificationEmail,
-  sendVerificationSuccessEmail
+  sendVerificationSuccessEmail,
 };
