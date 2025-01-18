@@ -16,6 +16,8 @@ const sendVerificationEmail = (to, userData) => {
       "./emailTemplates/verificationEmail.html"
     );
     const template = fs.readFileSync(templatePath, "utf8");
+
+    // Construct a props object to pass information down to the template.
     const props = {
       verificationCode: userData.verificationCode,
       firstName: userData.firstName,
@@ -24,8 +26,8 @@ const sendVerificationEmail = (to, userData) => {
       email: userData.email,
       link: "https://example.com"
     }
-    const html = ejs.render(template, props);
 
+    const html = ejs.render(template, props);
     const data = {
       from: `Development Services <${process.env.MAILGUN_FROM_EMAIL}>`,
       to,

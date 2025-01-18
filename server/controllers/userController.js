@@ -4,6 +4,8 @@ const {
   sendVerificationSuccessEmail
 } = require('../services/mailgunService')
 const crypto = require('crypto')
+const { generateToken } = require('../services/authService')
+const passport = require('../config/passportConfig')
 
 // Create a new user
 const createUserController = async (req, res) => {
@@ -42,13 +44,21 @@ const createUserController = async (req, res) => {
 }
 
 // Login a user
-const loginUserController = async (req, res) => {
-    const { email, password } = req.body
-    
-    if (!email || !password) {
-        return res.status(400).json({ message: "Please fill out all fields" })
+const loginUserController = async (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      console.error(err)
+      return next(err)
     }
+    if (!user) {
+      return res.status(400).json({ message: info.message })
+    }
+
+    const token = generateToken(user)
+    res.json({ token })
+  })(req, res, next)
 }
+
 
 // Verify a user
 const verifyUserController = async (req, res) => {
