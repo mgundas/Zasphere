@@ -4,7 +4,7 @@ const {
   sendVerificationSuccessEmail
 } = require('../services/mailgunService')
 const crypto = require('crypto')
-const { generateToken } = require('../services/authService')
+const { generateAccessToken, generateRefreshToken } = require('../services/authService')
 const passport = require('../config/passportConfig')
 
 // Create a new user
@@ -58,8 +58,10 @@ const loginUserController = async (req, res, next) => {
       return res.status(400).json({ message: "Please verify your email to login" })
     }
 
-    const token = generateToken(user)
-    res.json({ token })
+    const accessToken = generateAccessToken(user)
+    const refreshToken = generateRefreshToken(user)
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
+    res.json({ accessToken })
   })(req, res, next)
 }
 
