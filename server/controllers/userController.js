@@ -45,7 +45,7 @@ const createUserController = async (req, res) => {
 
 // Login a user
 const loginUserController = async (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
+  passport.authenticate('local', async (err, user, info) => {
     if (err) {
       console.error(err)
       return next(err)
@@ -58,13 +58,15 @@ const loginUserController = async (req, res, next) => {
       return res.status(400).json({ message: "Please verify your email to login" })
     }
 
+    const ip = req.ip
+    const userAgent = req.get('User-Agent')
+
     const accessToken = generateAccessToken(user)
-    const refreshToken = generateRefreshToken(user)
+    const refreshToken = await generateRefreshToken(user, ip, userAgent)
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
     res.json({ accessToken })
   })(req, res, next)
 }
-
 
 // Verify a user
 const verifyUserController = async (req, res) => {
@@ -93,8 +95,14 @@ const verifyUserController = async (req, res) => {
     }
 }
 
+// Revoke a refresh token
+const revokeTokenController = async (req, res) => {
+  await revokeRefreshToken(req, res)
+}
+
 module.exports = {
   createUserController,
   loginUserController,
-  verifyUserController
+  verifyUserController,
+  revokeTokenController
 }

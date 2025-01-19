@@ -1,14 +1,18 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/userModel')
+const RefreshToken = require('../models/refreshTokenModel')
 
 // Generate Access Token
 const generateAccessToken = (user) => {
   return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '15m' })
 }
 
-// Generate Refresh Token
-const generateRefreshToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' })
+// Generate Refresh Token and store it in the database
+const generateRefreshToken = async (user, ip, userAgent) => {
+  const refreshToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' })
+  const newRefreshToken = new RefreshToken({ token: refreshToken, userId: user._id, ip, userAgent })
+  await newRefreshToken.save()
+  return refreshToken
 }
 
 // Authenticate Access Token
@@ -25,20 +29,43 @@ const authenticateToken = (req, res, next) => {
 }
 
 // Refresh Access Token
-const refreshAccessToken = (req, res) => {
+const refreshAccessToken = async (req, res) => {
   const { token } = req.body
   if (!token) return res.sendStatus(401)
 
-  jwt.verify(token, process.env.JWT_REFRESH_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403)
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET)
+    const storedToken = await RefreshToken.findOne({ token, userId: decoded.id })
+    if (!storedToken) return res.sendStatus(403)
+
+    const user = await User.findById(decoded.id)
+    if (!user) return res.sendStatus(403)
+
     const accessToken = generateAccessToken(user)
     res.json({ accessToken })
-  })
+  } catch (err) {
+    res.sendStatus(403)
+  }
+}
+
+// Revoke Refresh Token
+const revokeRefreshToken = async (req, res) => {
+  const { token } = req.body
+  if (!token) return res.sendStatus(401)
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET)
+    await RefreshToken.findOneAndDelete({ token, userId: decoded.id })
+    res.sendStatus(204)
+  } catch (err) {
+    res.sendStatus(403)
+  }
 }
 
 module.exports = {
   generateAccessToken,
   generateRefreshToken,
   authenticateToken,
-  refreshAccessToken
+  refreshAccessToken,
+  revokeRefreshToken
 }
