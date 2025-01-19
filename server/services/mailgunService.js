@@ -9,7 +9,7 @@ const mg = mailgun({
   domain: process.env.MAILGUN_DOMAIN,
 });
 
-const sendVerificationEmail = (to, userData) => {
+const sendVerificationEmail = (userData) => {
   try {
     const templatePath = path.join(
       __dirname,
@@ -30,7 +30,7 @@ const sendVerificationEmail = (to, userData) => {
     const html = ejs.render(template, props);
     const data = {
       from: `Development Services <${process.env.MAILGUN_FROM_EMAIL}>`,
-      to,
+      to: userData.email,
       subject: "Email Verification",
       html,
     };

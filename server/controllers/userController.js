@@ -35,7 +35,7 @@ const createUserController = async (req, res) => {
 
     // Send verification email
     const userData = { firstName, lastName, username, email, verificationCode }
-    await sendVerificationEmail(user.email, userData)
+    await sendVerificationEmail(userData)
 
     res.status(201).json({ message: "User created successfully. Please check your email for the verification code." })
   } catch (error) {
@@ -52,6 +52,10 @@ const loginUserController = async (req, res, next) => {
     }
     if (!user) {
       return res.status(400).json({ message: info.message })
+    }
+
+    if (user.status === "inactive") {
+      return res.status(400).json({ message: "Please verify your email to login" })
     }
 
     const token = generateToken(user)
