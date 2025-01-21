@@ -1,6 +1,6 @@
 # Zaphere
 
-Zaphere is a web application designed to [describe the main purpose of your application]. This project is built using Node.js, Express, MongoDB, and other modern web technologies.
+Zaphere is a web application. This project is built using Node.js, Express, MongoDB, and other modern web technologies.
 
 ## Table of Contents
 
@@ -37,6 +37,8 @@ To get started with Zaphere, follow these steps:
    MAILGUN_API_KEY=yourMailgunApiKey
    MAILGUN_DOMAIN=yourMailgunDomain
    MAILGUN_FROM_EMAIL=yourFromEmail@example.com
+   JWT_SECRET=yourJwtSecret
+   JWT_REFRESH_SECRET=yourJwtRefreshSecret
    ```
 
 4. Start the application:
@@ -53,11 +55,14 @@ To use Zaphere, navigate to `http://localhost:3000` in your web browser. You can
 - User registration and authentication
 - Email verification using Mailgun
 - Secure password hashing with bcrypt
+- Token-based authentication with JWT
+- Refresh token management
+- Rate limiting to prevent abuse
 - [Add more features here]
 
 ## Configuration
 
-The application uses environment variables for configuration. Make sure to set up the `.env` file as described in the [Installation](#installation) section.
+The application uses environment variables for configuration. Make sure to set up the `.env` file as described in the Installation section.
 
 ## Contributing
 
