@@ -24,7 +24,8 @@ const sendVerificationEmail = (userData) => {
       lastName: userData.lastName,
       username: userData.username,
       email: userData.email,
-      link: "https://example.com"
+      link: "https://example.com",
+      appName: config.db.username
     }
 
     const html = ejs.render(template, props);
@@ -41,15 +42,33 @@ const sendVerificationEmail = (userData) => {
   }
 };
 
-const sendVerificationSuccessEmail = (to) => {
-  const data = {
-    from: `Authentication Services <${process.env.MAILGUN_FROM_EMAIL}>`,
-    to,
-    subject: "Verification Success",
-    text: `Your email has been verified successfully. You may start using our services.`,
-  };
+const sendVerificationSuccessEmail = (userData) => {
+  try {
+    const templatePath = path.join(
+      __dirname,
+      "./emailTemplates/verificationSucceeded.html"
+    );
+    const template = fs.readFileSync(templatePath, "utf8");
 
-  return mg.messages().send(data);
+    // Construct a props object to pass information down to the template.
+    const props = {
+      email: userData.email,
+      firstName: userData.firstName,
+      appName: config.db.username
+    }
+
+    const html = ejs.render(template, props);
+    const data = {
+      from: `Development Services <${process.env.MAILGUN_FROM_EMAIL}>`,
+      to: userData.email,
+      subject: "Email Verification Succeeded",
+      html,
+    };
+
+    return mg.messages().send(data);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = {
