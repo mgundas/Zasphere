@@ -1,15 +1,16 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/userModel')
 const RefreshToken = require('../models/refreshTokenModel')
+require("dotenv").config()
 
 // Generate Access Token
 const generateAccessToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '15m' })
+  return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: process.env.ACCESS_TOKEN_LIFETIME })
 }
 
 // Generate Refresh Token and store it in the database
 const generateRefreshToken = async (user, ip, userAgent) => {
-  const refreshToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' })
+  const refreshToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_REFRESH_SECRET, { expiresIn: process.env.REFRESH_TOKEN_LIFETIME })
   const newRefreshToken = new RefreshToken({ token: refreshToken, userId: user._id, ip, userAgent })
   await newRefreshToken.save()
   return refreshToken
